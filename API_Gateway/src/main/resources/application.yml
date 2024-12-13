@@ -1,0 +1,25 @@
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: API_Gateway
+
+  cloud:
+
+    gateway:
+      routes:
+        - id: product_service
+          uri: lb://product_service
+          predicates:
+            - Path=/products/**
+
+  main:
+    web-application-type: reactive
