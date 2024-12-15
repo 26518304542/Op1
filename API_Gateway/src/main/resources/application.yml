@@ -16,10 +16,14 @@ spring:
 
     gateway:
       routes:
-        - id: product_service
-          uri: lb://product_service
+        - id: product-service
+          uri: lb://product-service
           predicates:
             - Path=/products/**
 
-  main:
-    web-application-type: reactive
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/orders/**
+
+
