@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.Op1.common_library.dto.UpdateStockRequest;
 import com.Op1.order_service.domain.Order;
 import com.Op1.order_service.dto.ProductResponse;
 import com.Op1.order_service.repository.OrderRepository;
@@ -45,8 +46,24 @@ public class OrderService {
             throw new RuntimeException("Product was not found!");
         }
 
+        if(product.getQuantity() < order.getQuantity()){
+            throw new RuntimeException("Not enough stock available for the product!");
+        }
+
         order.setPrice(product.getPrice()*order.getQuantity());
         order.setOrderDate(LocalDateTime.now());
+
+
+        webClientBuilder.build()
+            .put()
+            .uri("http://localhost:8080/products/" + order.getProductId() + "/update-stock")
+            .bodyValue(new UpdateStockRequest(order.getProductId(), -order.getQuantity()))
+            .retrieve()
+            .toBodilessEntity()
+            .block();
+
+
+
         return orderRepository.save(order);
     }
 

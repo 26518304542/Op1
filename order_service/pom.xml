@@ -75,6 +75,12 @@
 			<artifactId>spring-cloud-stream-test-binder</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+    		<groupId>com.Op1</groupId>
+    		<artifactId>common-library</artifactId>
+    		<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
