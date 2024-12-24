@@ -3,7 +3,9 @@ package com.Op1.product_service.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
+import com.Op1.common_library.dto.UpdateStockRequest;
 import com.Op1.product_service.domain.Product;
 import com.Op1.product_service.repository.ProductRepository;
 
@@ -11,9 +13,11 @@ import com.Op1.product_service.repository.ProductRepository;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final WebClient.Builder webClientBuilder;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, WebClient.Builder webClientBuilder) {
         this.productRepository = productRepository;
+        this.webClientBuilder = webClientBuilder;
     }
 
     public List<Product> getAllProducts(){
@@ -39,6 +43,18 @@ public class ProductService {
         product.setPrice(updatedProduct.getPrice());
         product.setQuantity(updatedProduct.getQuantity());
         return productRepository.save(product);
+    }
+
+    public void updateStock(Long productId, int quantityChange){
+
+        webClientBuilder.build()
+            .patch()
+            .uri("http://localhost:8080/products/" + productId + "/update-stock")
+            .bodyValue(new UpdateStockRequest(productId, quantityChange))
+            .retrieve()
+            .toBodilessEntity()
+            .block();
+
     }
 
 
