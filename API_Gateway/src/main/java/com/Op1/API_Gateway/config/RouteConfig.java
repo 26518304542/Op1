@@ -13,6 +13,7 @@ public class RouteConfig {
         return builder.routes()
             .route("product-service", r -> r.path("/api/products/**").uri("lb://product-service"))
             .route("order-service", r -> r.path("/api/orders/**").uri("lb://order-service"))
+            .route("payment-service", r -> r.path("/api/payments/**").uri("lb://payment-service"))
             .build();
 
     }

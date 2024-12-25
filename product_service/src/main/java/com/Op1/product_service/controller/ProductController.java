@@ -11,11 +11,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+//import com.Op1.common_library.dto.UpdateStockRequest;
 import com.Op1.product_service.domain.Product;
 import com.Op1.product_service.dto.ProductStockResponse;
+import com.Op1.product_service.dto.UpdateStockRequest;
 import com.Op1.product_service.service.ProductService;
 
 @RestController
@@ -56,8 +57,8 @@ public class ProductController {
     }
 
     @PatchMapping("/{id}/update-stock")
-    public ResponseEntity<Void> updateStock(@PathVariable Long id, @RequestParam int quantityChange){
-        productService.updateStock(id, quantityChange);
+    public ResponseEntity<Void> updateStock(@PathVariable Long id, @RequestBody UpdateStockRequest request){
+        productService.updateStock(id, request.getQuantityChange());
         return ResponseEntity.ok().build();
     }
 

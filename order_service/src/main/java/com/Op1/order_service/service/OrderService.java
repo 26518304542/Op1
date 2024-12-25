@@ -6,9 +6,9 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.Op1.common_library.dto.UpdateStockRequest;
 import com.Op1.order_service.domain.Order;
 import com.Op1.order_service.dto.ProductResponse;
+import com.Op1.order_service.dto.UpdateStockRequest;
 import com.Op1.order_service.repository.OrderRepository;
 
 @Service
@@ -35,6 +35,7 @@ public class OrderService {
             throw new RuntimeException("Product ID must be provided!");
         }
 
+        /*
         ProductResponse product =  webClientBuilder.build()
             .get()
             .uri("http://localhost:8080/products/" + order.getProductId())
@@ -62,9 +63,42 @@ public class OrderService {
             .toBodilessEntity()
             .block();
 
+            After determining the reason of the error belongs to updateRequest in common_library it will be used
+        */
 
+        ProductResponse product = webClientBuilder.build()
+                .get()
+                .uri("http://localhost:8080/products/" + order.getProductId())
+                .retrieve()
+                .bodyToMono(ProductResponse.class)
+                .block();
 
+        if (product == null) {
+            throw new RuntimeException("Product not found!");
+        }
+
+        // Stok kontrolü
+        if (product.getQuantity() < order.getQuantity()) {
+            throw new RuntimeException("Not enough stock available for the product!");
+        }
+
+        // Sipariş detaylarını hesapla
+        order.setPrice(product.getPrice() * order.getQuantity());
+        order.setOrderDate(LocalDateTime.now());
+
+        // Stok güncellemesi yap
+        UpdateStockRequest updateStockRequest = new UpdateStockRequest(order.getProductId(), -order.getQuantity());
+        webClientBuilder.build()
+                .patch()
+                .uri("http://localhost:8080/products/" + order.getProductId() + "/update-stock")
+                .bodyValue(updateStockRequest)
+                .retrieve()
+                .toBodilessEntity()
+                .block();
+
+        // Siparişi kaydet ve geri döndür
         return orderRepository.save(order);
+
     }
 
     public Order updateOrder(Long id, Order updatedOrder){
