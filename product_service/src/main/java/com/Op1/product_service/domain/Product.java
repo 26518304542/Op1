@@ -1,11 +1,16 @@
 package com.Op1.product_service.domain;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -24,6 +29,28 @@ public class Product {
 
     @Column(nullable = false)
     private int quantity;
+
+    private Long orderId;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StockHistory> stockHistories = new ArrayList<>();
+
+
+    public List<StockHistory> getStockHistories() {
+        return stockHistories;
+    }
+
+    public void setStockHistories(List<StockHistory> stockHistories) {
+        this.stockHistories = stockHistories;
+    }
+
+    public Long getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Long orderId) {
+        this.orderId = orderId;
+    }
 
     public Product() {}
 
@@ -66,5 +93,14 @@ public class Product {
     }
 
 
+    public void addStockHistory(StockHistory stockHistory){
+        stockHistories.add(stockHistory);
+        stockHistory.setProduct(this);
+    }
+
+    public void removeStockHistory(StockHistory stockHistory){
+        stockHistories.remove(stockHistory);
+        stockHistory.setProduct(null);
+    }
 
 }

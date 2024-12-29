@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.Op1.order_service.domain.Order;
+import com.Op1.order_service.dto.PaymentRequest;
 import com.Op1.order_service.dto.ProductResponse;
+import com.Op1.order_service.dto.ProductUpdateOrderIdRequest;
 import com.Op1.order_service.dto.UpdateStockRequest;
 import com.Op1.order_service.repository.OrderRepository;
 
@@ -66,12 +68,14 @@ public class OrderService {
             After determining the reason of the error belongs to updateRequest in common_library it will be used
         */
 
-        ProductResponse product = webClientBuilder.build()
+        ProductResponse product = checkProductAvailablity(order);
+
+        /*webClientBuilder.build()
                 .get()
                 .uri("http://localhost:8080/products/" + order.getProductId())
                 .retrieve()
                 .bodyToMono(ProductResponse.class)
-                .block();
+                .block();*/
 
         if (product == null) {
             throw new RuntimeException("Product not found!");
@@ -85,9 +89,39 @@ public class OrderService {
         // Sipariş detaylarını hesapla
         order.setPrice(product.getPrice() * order.getQuantity());
         order.setOrderDate(LocalDateTime.now());
+        Order savedOrder = orderRepository.save(order);
 
         // Stok güncellemesi yap
-        UpdateStockRequest updateStockRequest = new UpdateStockRequest(order.getProductId(), -order.getQuantity());
+        PaymentRequest paymentRequest = new PaymentRequest(savedOrder.getId(), savedOrder.getPrice());
+        webClientBuilder.build()
+            .post()
+            .uri("http://localhost:8080/payments")
+            .bodyValue(paymentRequest)
+            .retrieve()
+            .toBodilessEntity()
+            .block();
+
+        updateProductStock(order);
+
+        // Siparişi kaydet ve geri döndür
+        return orderRepository.save(order);
+
+    }
+
+    private ProductResponse checkProductAvailablity(Order order){
+
+        return webClientBuilder.build()
+                .get()
+                .uri("http://localhost:8080/products/" + order.getProductId())
+                .retrieve()
+                .bodyToMono(ProductResponse.class)
+                .block();
+    }
+
+    private void updateProductStock(Order order){
+
+        UpdateStockRequest updateStockRequest = new UpdateStockRequest(order.getProductId(), -order.getQuantity(), order.getId());
+
         webClientBuilder.build()
                 .patch()
                 .uri("http://localhost:8080/products/" + order.getProductId() + "/update-stock")
@@ -95,9 +129,6 @@ public class OrderService {
                 .retrieve()
                 .toBodilessEntity()
                 .block();
-
-        // Siparişi kaydet ve geri döndür
-        return orderRepository.save(order);
 
     }
 

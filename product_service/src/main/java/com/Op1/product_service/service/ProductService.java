@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 //import com.Op1.common_library.dto.UpdateStockRequest;
 import com.Op1.product_service.domain.Product;
+import com.Op1.product_service.domain.StockHistory;
 import com.Op1.product_service.repository.ProductRepository;
 
 @Service
@@ -45,7 +46,7 @@ public class ProductService {
         return productRepository.save(product);
     }
 
-    public void updateStock(Long productId, int quantityChange){
+    public void updateStock(Long productId, int quantityChange, Long orderId){
 
         /*webClientBuilder.build()
             .patch()
@@ -63,7 +64,10 @@ public class ProductService {
             throw new RuntimeException("Insufficient stock for product!");
         }
 
+
         product.setQuantity(product.getQuantity() + quantityChange);
+        product.addStockHistory(new StockHistory(orderId, quantityChange));
+        product.setOrderId(orderId);
         productRepository.save(product);
 
     }
