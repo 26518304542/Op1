@@ -30,6 +30,14 @@ public class Order {
     @Column(nullable = false)
     private Long productId;
 
+    @Column(nullable = false)
+    private Long customerId;
+
+    @Column(nullable = false)
+    private String paymentType;
+
+    private String paymentSTATUS;
+
 
 
     public Long getProductId() {
@@ -81,6 +89,32 @@ public class Order {
     public void setOrderDate(LocalDateTime orderDate) {
         this.orderDate = orderDate;
     }
+
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
+
+    public String getPaymentType() {
+        return paymentType;
+    }
+
+    public void setPaymentType(String paymentType) {
+        this.paymentType = paymentType;
+    }
+
+    public String getPaymentSTATUS() {
+        return paymentSTATUS;
+    }
+
+    public void setPaymentSTATUS(String paymentSTATUS) {
+        this.paymentSTATUS = paymentSTATUS;
+    }
+
+    
 
 
 }

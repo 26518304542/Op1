@@ -10,6 +10,7 @@ import com.Op1.order_service.domain.Order;
 import com.Op1.order_service.dto.PaymentRequest;
 import com.Op1.order_service.dto.ProductResponse;
 import com.Op1.order_service.dto.ProductUpdateOrderIdRequest;
+import com.Op1.order_service.dto.UpdatePaymentStatusforOrderRequest;
 import com.Op1.order_service.dto.UpdateStockRequest;
 import com.Op1.order_service.repository.OrderRepository;
 
@@ -89,13 +90,16 @@ public class OrderService {
         // Sipariş detaylarını hesapla
         order.setPrice(product.getPrice() * order.getQuantity());
         order.setOrderDate(LocalDateTime.now());
+        order.setCustomerId(order.getCustomerId());
+        order.setPaymentType(order.getPaymentType());
+        order.setPaymentSTATUS("WAITING_FOR_PAYMENT");
         Order savedOrder = orderRepository.save(order);
 
         // Stok güncellemesi yap
-        PaymentRequest paymentRequest = new PaymentRequest(savedOrder.getId(), savedOrder.getPrice());
+        PaymentRequest paymentRequest = new PaymentRequest(savedOrder.getId(), savedOrder.getPrice(), savedOrder.getCustomerId(), savedOrder.getPaymentType());
         webClientBuilder.build()
             .post()
-            .uri("http://localhost:8080/payments")
+            .uri("http://localhost:8080/payments/waiting-for-payment")
             .bodyValue(paymentRequest)
             .retrieve()
             .toBodilessEntity()
@@ -142,6 +146,16 @@ public class OrderService {
 
     public void deleteOrder(Long id){
         orderRepository.deleteById(id);
+    }
+
+    public String updatePaymentStatus(Long id, UpdatePaymentStatusforOrderRequest request) {
+        Order order = getOrderById(id);
+
+        order.setPaymentSTATUS(request.getStatus());
+        
+        orderRepository.save(order);
+
+        return "SUCCESS";
     }
 
 }

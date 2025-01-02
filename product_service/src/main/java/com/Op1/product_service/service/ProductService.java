@@ -1,13 +1,17 @@
 package com.Op1.product_service.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 //import org.springframework.web.reactive.function.client.WebClient;
 
 //import com.Op1.common_library.dto.UpdateStockRequest;
 import com.Op1.product_service.domain.Product;
 import com.Op1.product_service.domain.StockHistory;
+import com.Op1.product_service.dto.ProductDTO;
+import com.Op1.product_service.dto.StockHistoryDTO;
 import com.Op1.product_service.repository.ProductRepository;
 
 @Service
@@ -21,12 +25,28 @@ public class ProductService {
         //this.webClientBuilder = webClientBuilder;
     }
 
-    public List<Product> getAllProducts(){
-        return productRepository.findAll();
+    public List<ProductDTO> getAllProducts(){
+        List<Product> products = productRepository.findAll();
+        List<ProductDTO> productDTOs = products.stream()
+                .map(product -> mapToDTO(product))
+                .collect(Collectors.toList());
+        return productDTOs;
     }
 
-    public Product getProductById(Long id){
-        return productRepository.findById(id).orElseThrow(()->new RuntimeException("Product not found!"));
+    private ProductDTO mapToDTO(Product product){
+        List<StockHistoryDTO> stockHistoryDTOs = product.getStockHistories().stream()
+            .map(history -> new StockHistoryDTO(history.getId(), history.getOrderId(), history.getQuantityChange()))
+            .collect(Collectors.toList());
+        return new ProductDTO(product.getId(), product.getName(), product.getPrice(), product.getQuantity(), stockHistoryDTOs);
+    }
+
+    public ProductDTO getProductById(Long id){
+        Product product = productRepository.findById(id).orElseThrow(()->new RuntimeException("Product not found!"));
+        List<StockHistoryDTO> stockHistoryDTOs = product.getStockHistories().stream()
+            .map(history -> new StockHistoryDTO(history.getId(), history.getOrderId(), history.getQuantityChange()))
+            .collect(Collectors.toList());
+        ProductDTO productDTO = new ProductDTO(product.getId(), product.getName(), product.getPrice(), product.getQuantity(), stockHistoryDTOs);
+        return productDTO;
     }
 
     public int getProductStock(Long id){

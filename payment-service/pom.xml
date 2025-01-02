@@ -76,6 +76,11 @@
     		<groupId>org.springframework.boot</groupId>
     		<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
+		<dependency>
+    		<groupId>com.Op1</groupId>
+    		<artifactId>order_service</artifactId>
+    		<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 
 
 	</dependencies>

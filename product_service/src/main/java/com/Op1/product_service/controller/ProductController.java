@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 //import com.Op1.common_library.dto.UpdateStockRequest;
 import com.Op1.product_service.domain.Product;
+import com.Op1.product_service.dto.ProductDTO;
 import com.Op1.product_service.dto.ProductStockResponse;
 import com.Op1.product_service.dto.UpdateStockRequest;
 import com.Op1.product_service.service.ProductService;
@@ -30,12 +31,12 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts(){
+    public ResponseEntity<List<ProductDTO>> getAllProducts(){
         return ResponseEntity.ok(productService.getAllProducts());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable Long id){
+    public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id){
         return ResponseEntity.ok(productService.getProductById(id));
     }
 
